@@ -8,7 +8,8 @@ const socket = io();
 function App() {
   const [greetings, setGreetings] = useState('');
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [message, setMessage] = useState('')
+  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -20,7 +21,7 @@ function App() {
     });
 
     socket.on('events', (e) => {
-      setMessages((messages) => [e, ...messages]);
+      setHistory((newHistory) => [e, ...newHistory]);
     });
 
     return () => {
@@ -31,14 +32,16 @@ function App() {
   }, []);
 
   const getGreetings = () => {
+    setGreetings('');
+
     fetch('/api/hello')
       .then(response => response.json())
       .then((data: ApiResponse) => setGreetings(data.message))
       .catch(error => console.error('Error fetching data:', error));
   }
 
-  const sendPing = () => {
-    socket.emit()
+  const sendMessage = () => {
+    socket.emit('events', message)
   }
 
 
@@ -49,7 +52,25 @@ function App() {
       {
         greetings && <>
           <p>Client: Real time chat?</p>
-          <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>        
+          <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
+          {
+            isConnected && <>
+              <span>
+                <input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
+              </span>
+              <button
+                onClick={sendMessage}
+              >
+                Send Message
+              </button>
+            {history?.map((message) => {
+              return <p>{message}</p>;
+            })}
+            </>
+          }   
         </>
       }
     </div>
