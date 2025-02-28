@@ -1,20 +1,23 @@
+import React from "react";
 import { useEffect, useState } from 'react';
-import { ApiResponse } from '@shared/interface';
+import { ApiResponse } from '../shared/interface';
+
 
 function App() {
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
+  const getHelloFromServer = () => {
     fetch('/api/hello')
       .then(response => response.json())
       .then((data: ApiResponse) => setMessage(data.message))
       .catch(error => console.error('Error fetching data:', error));
-  }, []);
+  }
+
 
   return (
     <div>
-      <h1>Client: React saying Hello</h1>
-      <h1>Server: {message}</h1>
+      <p>Client: <span><button onClick={getHelloFromServer}>Hi, server</button></span></p>
+      <p>Server: {message}</p>
     </div>
   );
 }

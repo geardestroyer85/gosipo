@@ -5,6 +5,6 @@ import { ApiResponse } from '@shared/interface';
 export class AppController {
   @Get('hello')
   getHello(): ApiResponse {
-    return { message: 'NestJS saying Hello, too!' };
+    return { message: 'Hi, client!' };
   }
 }
