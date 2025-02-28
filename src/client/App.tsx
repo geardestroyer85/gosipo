@@ -56,19 +56,21 @@ function App() {
           <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
           {
             true && <>
-              <span>
-                Client:{" "}
-                <input
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                />
-              </span>
-              <button
-                onClick={sendMessage}
-              >
-                Send Message
-              </button>
-              <p>Server: Below is messages from you and your mates!</p>
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                sendMessage()
+              }}>
+                <span>
+                  Client:{" "}
+                  <input
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
+                </span>
+                <button type="submit">
+                  Send Message
+                </button>
+              </form>              <p>Server: Below is message history from you and your mates!</p>
             {history?.map((message) => {
               return <p>{message}</p>;
             })}
