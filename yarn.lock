@@ -1151,6 +1151,14 @@
     path-to-regexp "8.2.0"
     tslib "2.8.1"
 
+"@nestjs/platform-socket.io@^11.0.10":
+  version "11.0.10"
+  resolved "https://registry.yarnpkg.com/@nestjs/platform-socket.io/-/platform-socket.io-11.0.10.tgz#ae1b10c75971e0812ac92b2c5a7c21a114954dea"
+  integrity sha512-39lAjq0+kZRiMuscDcugoG+onPDciM4jhuf8ZDjVcuSwtib1OGwrFtErSzp/KJsmHPSStgapbNev7eFi32uWQA==
+  dependencies:
+    socket.io "4.8.1"
+    tslib "2.8.1"
+
 "@nestjs/schematics@^11.0.0", "@nestjs/schematics@^11.0.1":
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/@nestjs/schematics/-/schematics-11.0.1.tgz#0bc79a95a533225d3329c32d2c3c7bebefdaa675"
@@ -1162,11 +1170,27 @@
     jsonc-parser "3.3.1"
     pluralize "8.0.0"
 
+"@nestjs/serve-static@^5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/serve-static/-/serve-static-5.0.3.tgz#63d8021ce93ab91515fd7dfffaa71d734bddb3f8"
+  integrity sha512-0jFjTlSVSLrI+mot8lfm+h2laXtKzCvgsVStv9T1ZBZTDwS26gM5czIhIESmWAod0PfrbCDFiu9C1MglObL8VA==
+  dependencies:
+    path-to-regexp "8.2.0"
+
 "@nestjs/testing@^11.0.1":
   version "11.0.10"
   resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-11.0.10.tgz#dac884e4162011526e0345077b2087c2b94afdaa"
   integrity sha512-uZcdnvmHXWnvozYOAwZi1elpRRfqIfYqHglCavjhjcj3cH1MVZkwoTqntW3XOPQlT4lf96InjP1exGaW4B9wUg==
   dependencies:
+    tslib "2.8.1"
+
+"@nestjs/websockets@^11.0.10":
+  version "11.0.10"
+  resolved "https://registry.yarnpkg.com/@nestjs/websockets/-/websockets-11.0.10.tgz#d0f5702370ea063ca558697fe011df176f5ba1dd"
+  integrity sha512-GPIEfqJyAkTHrHGK9w2OU8LJaZAZKW8WpWcTplThLxMelRq7mBkYOaGvc6dpr7fE1wWzWkwY0ZjQEnwnVmmxSg==
+  dependencies:
+    iterare "1.2.1"
+    object-hash "3.0.0"
     tslib "2.8.1"
 
 "@nodelib/fs.scandir@2.1.5":
@@ -3647,12 +3671,15 @@ gopd@^1.2.0:
     "@nestjs/common" "^11.0.1"
     "@nestjs/core" "^11.0.1"
     "@nestjs/platform-express" "^11.0.1"
-    gosipo "file:C:/Users/user/AppData/Local/Yarn/Cache/v6/npm-gosipo-1.0.0-de63df3d-9062-4ed8-8de2-c2c2186aa613-1740711709845/node_modules/gosipo"
+    "@nestjs/serve-static" "^5.0.3"
+    "@nestjs/websockets" "^11.0.10"
+    gosipo "file:C:/Users/user/AppData/Local/Yarn/Cache/v6/npm-gosipo-1.0.0-1faaef7a-5781-4de4-ac37-5ab1115d0cdd-1740713082440/node_modules/gosipo"
     react "^19.0.0"
     react-dom "^19.0.0"
     reflect-metadata "^0.2.2"
     rxjs "^7.8.1"
     socket.io "^4.8.1"
+    socket.io-client "^4.8.1"
 
 got@^13.0.0:
   version "13.0.0"
@@ -4784,6 +4811,11 @@ object-assign@^4, object-assign@^4.1.1:
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==
 
+object-hash@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-3.0.0.tgz#73f97f753e7baffc0e2cc9d6e079079744ac82e9"
+  integrity sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==
+
 object-inspect@^1.13.3:
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/object-inspect/-/object-inspect-1.13.4.tgz#8375265e21bc20d0fa582c22e1b13485d6e00213"
@@ -5507,7 +5539,7 @@ socket.io-parser@~4.2.4:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.1"
 
-socket.io@^4.8.1:
+socket.io@4.8.1, socket.io@^4.8.1:
   version "4.8.1"
   resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-4.8.1.tgz#fa0eaff965cc97fdf4245e8d4794618459f7558a"
   integrity sha512-oZ7iUCxph8WYRHHcjBEc9unw3adt5CmSNlppj/5Q4k2RIrhl8Z5yY2Xr4j9zj0+wzVZ0bxmYoGSzKJnRl6A4yg==

@@ -42,6 +42,7 @@ function App() {
 
   const sendMessage = () => {
     socket.emit('events', message)
+    setMessage('')
   }
 
 
@@ -54,8 +55,9 @@ function App() {
           <p>Client: Real time chat?</p>
           <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
           {
-            isConnected && <>
+            true && <>
               <span>
+                Client:{" "}
                 <input
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -66,6 +68,7 @@ function App() {
               >
                 Send Message
               </button>
+              <p>Server: Below is messages from you and your mates!</p>
             {history?.map((message) => {
               return <p>{message}</p>;
             })}

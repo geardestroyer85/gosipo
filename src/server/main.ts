@@ -4,5 +4,11 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(8888);
+
+  process.on('SIGTERM', () => {
+    console.info('SIGTERM signal received.');
+    console.log('Closing server.');
+    app.close();
+  });
 }
 bootstrap();
