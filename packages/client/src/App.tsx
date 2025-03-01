@@ -29,7 +29,6 @@ function App() {
     socket.on('connect', () => setIsConnected(true));
     socket.on('disconnect', () => setIsConnected(false));
     socket.on('events', (msg: IUserMessage) => {
-      console.log("event socket arrived")
       setHistory(prev => [...prev, msg]);
     });
 
@@ -47,26 +46,18 @@ function App() {
   const handleGreeting = () => {
     if (!user.userName.trim()) return;
 
-    // Add user's greeting to history
-    const userGreeting: IUserMessage = {
-      user,
+    const greetings: IUserMessage = {
+      user: {
+        userId: 'greetings',
+        userName: 'Notification'
+      },
       message: `${user.userName} joined the chat`,
       timestamp: Date.now()
-    };
-    
-    setHistory(prev => [...prev, userGreeting]);
-    
-    // Simulate server response with delay
-    setTimeout(() => {
-      const serverResponse: IUserMessage = {
-        user: { userId: 'server', userName: 'Server' },
-        message: `Welcome ${user.userName}! You can chat now.`,
-        timestamp: Date.now()
-      };
-      
-      setHistory(prev => [...prev, serverResponse]);
-      setCanChat(true);
-    }, 1500);
+    }
+
+    socket.emit('events', greetings)
+
+    setTimeout(() => setCanChat(true), 200)
   };
 
   const sendMessage = (e: React.FormEvent) => {
@@ -78,8 +69,6 @@ function App() {
       message,
       timestamp: Date.now()
     };
-
-    console.log(newMessage)
 
     socket.emit('events', newMessage);
     setMessage('');
@@ -96,6 +85,38 @@ function App() {
     e.preventDefault();
     handleGreeting();
   };
+
+  if (!canChat) {
+    return (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+          <h2 className="text-2xl font-bold mb-6 text-center">Join the Chat</h2>
+          <form onSubmit={handleGreetingSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Your Name
+              </label>
+              <input
+                id="username"
+                type="text"
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your name"
+                value={user.userName}
+                onChange={(e) => setUser(prev => ({ ...prev, userName: e.target.value }))}
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-medium disabled:opacity-50"
+              disabled={!user.userName.trim()}
+            >
+              Join Chat
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -134,39 +155,21 @@ function App() {
 
       {/* Input Area */}
       <div className="border-t bg-white p-4 shadow-lg">
-        {!canChat ? (
-          <form onSubmit={handleGreetingSubmit} className="max-w-2xl mx-auto flex gap-4 items-center">
-            <input
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your name"
-              value={user.userName}
-              onChange={(e) => setUser(prev => ({ ...prev, userName: e.target.value }))}
-            />
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
-              disabled={!user.userName.trim()}
-            >
-              Hi Server
-            </button>
-          </form>
-        ) : (
-          <form onSubmit={sendMessage} className="max-w-2xl mx-auto flex gap-4">
-            <input
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Type your message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
-              disabled={!message.trim()}
-            >
-              Send
-            </button>
-          </form>
-        )}
+        <form onSubmit={sendMessage} className="max-w-2xl mx-auto flex gap-4">
+          <input
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Type your message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
+            disabled={!message.trim()}
+          >
+            Send
+          </button>
+        </form>
         
         <div className="text-center mt-2 text-sm text-gray-500">
           {isConnected ? 'Connected' : 'Connecting...'}
