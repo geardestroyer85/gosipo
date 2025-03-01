@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from 'react';
-import { ApiResponse } from '../shared/interface';
 import { io } from 'socket.io-client';
 
 const socket = io();
@@ -36,7 +35,7 @@ function App() {
 
     fetch('/api/hello')
       .then(response => response.json())
-      .then((data: ApiResponse) => setGreetings(data.message))
+      .then((data) => setGreetings(data.message))
       .catch(error => console.error('Error fetching data:', error));
   }
 
@@ -55,7 +54,7 @@ function App() {
           <p>Client: Real time chat?</p>
           <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
           {
-            true && <>
+            isConnected && <>
               <form onSubmit={(e) => {
                 e.preventDefault()
                 sendMessage()
