@@ -46,33 +46,37 @@ function App() {
 
 
   return (
-    <div>
-      <p>Client: <span><button onClick={getGreetings}>Hi, server</button></span></p>
-      <p>Server: {greetings}</p>
+    <div className="p-4">
+      <p className="mb-4">Client: <span><button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={getGreetings}>Hi, server</button></span></p>
+      <p className="mb-4">Server: {greetings}</p>
       {
         greetings && <>
-          <p>Client: Real time chat?</p>
-          <p>Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
+          <p className="mb-4">Client: Real time chat?</p>
+          <p className="mb-4">Server: { isConnected ? 'Sure, no problem' : 'Sorry, no dude'}</p>
           {
             isConnected && <>
-              <form onSubmit={(e) => {
+              <form className="mb-4" onSubmit={(e) => {
                 e.preventDefault()
                 sendMessage()
               }}>
-                <span>
+                <span className="mr-2">
                   Client:{" "}
                   <input
+                    className="border rounded py-1 px-2"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                   />
                 </span>
-                <button type="submit">
+                <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">
                   Send Message
                 </button>
-              </form>              <p>Server: Below is message history from you and your mates!</p>
-            {history?.map((message) => {
-              return <p>{message}</p>;
-            })}
+              </form>
+              <p className="mb-4">Server: Below is message history from you and your mates!</p>
+              <div className="space-y-2">
+                {history?.map((message) => {
+                  return <p className="bg-gray-100 p-2 rounded">{message}</p>;
+                })}
+              </div>
             </>
           }   
         </>
