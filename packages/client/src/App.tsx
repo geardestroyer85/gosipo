@@ -114,6 +114,7 @@ function App() {
     setHistory([]);
     setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
     setCanChat(false);
+    setMessage('');
   };
 
   if (!canChat) {
