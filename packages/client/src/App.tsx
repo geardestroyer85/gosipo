@@ -1,7 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { io } from 'socket.io-client';
-
-const socket = io();
+import { io, Socket } from 'socket.io-client';
 
 interface IUser {
   userId: string;
@@ -15,6 +13,7 @@ interface IUserMessage {
 }
 
 function App() {
+  const [socket, setSocket] = useState<Socket>();
   const [isConnected, setIsConnected] = useState(false);
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState<IUserMessage[]>([]);
@@ -33,6 +32,8 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
+
     socket.on('connect', () => setIsConnected(true));
     socket.on('disconnect', () => setIsConnected(false));
     socket.on('events', (msg: IUserMessage) => {
@@ -44,7 +45,7 @@ function App() {
       socket.off('disconnect');
       socket.off('events');
     };
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,6 +53,9 @@ function App() {
 
   const handleGreeting = () => {
     if (!user.userName.trim()) return;
+
+    const newSocket = io();
+    setSocket(newSocket);
 
     const greetings: IUserMessage = {
       user: {
@@ -62,14 +66,14 @@ function App() {
       timestamp: Date.now()
     }
 
-    socket.emit('events', greetings)
+    newSocket.emit('events', greetings)
 
     setTimeout(() => setCanChat(true), 200)
   };
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !canChat) return;
+    if (!message.trim() || !canChat || !socket) return;
 
     const newMessage: IUserMessage = {
       user,
@@ -91,6 +95,25 @@ function App() {
   const handleGreetingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleGreeting();
+  };
+
+  const handleLogout = () => {
+    if (!socket) return;
+
+    const logoutMessage: IUserMessage = {
+      user: {
+        userId: 'greetings',
+        userName: 'Notification'
+      },
+      message: `${user.userName} left the chat`,
+      timestamp: Date.now()
+    }
+    socket.emit('events', logoutMessage);
+    socket.disconnect();
+    setSocket(undefined);
+    setHistory([]);
+    setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
+    setCanChat(false);
   };
 
   if (!canChat) {
@@ -165,25 +188,37 @@ function App() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t bg-white p-4 shadow-lg">
-        <form onSubmit={sendMessage} className="max-w-2xl mx-auto flex gap-4">
-          <input
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Type your message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
-            disabled={!message.trim()}
-          >
-            Send
-          </button>
-        </form>
-        
-        <div className="text-center mt-2 text-sm text-gray-500">
-          {isConnected ? 'Connected' : 'Connecting...'}
+      <div className="border-t bg-white p-4">
+        <div className="max-w-4xl mx-auto">
+          <form onSubmit={sendMessage} className="flex items-center gap-3">
+            <div className="flex-1 relative">
+              <input
+                className="w-full bg-gray-50 border border-gray-200 rounded-full px-6 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 pr-32"
+                placeholder="Type your message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <span className={`inline-block w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                <span className="text-sm text-gray-500 mr-2">
+                  {isConnected ? 'Connected' : 'Connecting...'}
+                </span>
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full transition-colors font-medium disabled:opacity-50 shadow-lg hover:shadow-xl"
+              disabled={!message.trim()}
+            >
+              Send
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full transition-colors font-medium shadow-lg hover:shadow-xl"
+            >
+              Logout
+            </button>
+          </form>
         </div>
       </div>
     </div>
