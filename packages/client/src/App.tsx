@@ -108,8 +108,9 @@ function App() {
       message: `${user.userName} left the chat`,
       timestamp: Date.now()
     }
-    socket.emit('events', logoutMessage);
-    socket.disconnect();
+      socket.emit('events', logoutMessage, () => {
+        socket.disconnect();
+      });
     setSocket(undefined);
     setHistory([]);
     setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
