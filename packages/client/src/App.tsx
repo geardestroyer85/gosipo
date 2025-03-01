@@ -23,7 +23,14 @@ function App() {
     userName: ''
   });
   const [canChat, setCanChat] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     socket.on('connect', () => setIsConnected(true));
@@ -126,15 +133,19 @@ function App() {
           {history.map((msg, index) => (
             <div
               key={index}
-              className={`flex ${msg.user.userId === user.userId ? 'justify-end' : 'justify-start'} mb-4`}
+              className={`flex mb-4 ${
+                windowWidth <= 768 && msg.user.userId === user.userId
+                  ? 'justify-end'
+                  : 'justify-start'
+              }`}
             >
               <div
                 className={`max-w-md p-4 rounded-lg ${
-                  msg.user.userId === 'server' 
-                    ? 'bg-yellow-600 text-white'
+                  msg.user.userName === 'Notification' 
+                    ? 'bg-yellow-500 text-white'
                     : msg.user.userId === user.userId
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-700 text-white'
+                      : 'bg-gray-600 text-white'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
