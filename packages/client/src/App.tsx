@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 const socket = io();
@@ -11,29 +11,26 @@ interface IUser {
 interface IUserMessage {
   user: IUser;
   message: string;
+  timestamp: number;
 }
 
 function App() {
-  const [greetings, setGreetings] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
-  const [message, setMessage] = useState<string>('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [message, setMessage] = useState('');
   const [history, setHistory] = useState<IUserMessage[]>([]);
   const [user, setUser] = useState<IUser>({
     userId: Math.random().toString(36).substring(7),
     userName: ''
   });
+  const [canChat, setCanChat] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    socket.on('connect', () => {
-      setIsConnected(true);
-    });
-
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-    });
-
-    socket.on('events', (e: IUserMessage) => {
-      setHistory((prevHistory) => [...prevHistory, e]);
+    socket.on('connect', () => setIsConnected(true));
+    socket.on('disconnect', () => setIsConnected(false));
+    socket.on('events', (msg: IUserMessage) => {
+      console.log("event socket arrived")
+      setHistory(prev => [...prev, msg]);
     });
 
     return () => {
@@ -43,96 +40,137 @@ function App() {
     };
   }, []);
 
-  const getGreetings = (): void => {
-    setGreetings('');
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [history]);
 
-    fetch('/api/hello')
-      .then((response) => response.json())
-      .then((data: { message: string }) => {
-        setGreetings(data.message);
-        setHistory(prev => [...prev, {
-          user: { userId: 'server', userName: 'Server' },
-          message: data.message
-        }]);
-      })
-      .catch((error) => console.error('Error fetching data:', error));
-  }
+  const handleGreeting = () => {
+    if (!user.userName.trim()) return;
 
-  const sendMessage = (): void => {
-    socket.emit('events', {
+    // Add user's greeting to history
+    const userGreeting: IUserMessage = {
       user,
-      message
-    });
-    setMessage('');
-  }
+      message: `${user.userName} joined the chat`,
+      timestamp: Date.now()
+    };
+    
+    setHistory(prev => [...prev, userGreeting]);
+    
+    // Simulate server response with delay
+    setTimeout(() => {
+      const serverResponse: IUserMessage = {
+        user: { userId: 'server', userName: 'Server' },
+        message: `Welcome ${user.userName}! You can chat now.`,
+        timestamp: Date.now()
+      };
+      
+      setHistory(prev => [...prev, serverResponse]);
+      setCanChat(true);
+    }, 1500);
+  };
 
-  const setMessageStyle = (messageUserId: string): string => {
-    return messageUserId === user.userId
-      ? 'bg-purple-600 p-4 ml-24 mb-4 rounded-lg shadow-md'
-      : 'bg-gray-600 p-4 mr-24 mb-4 rounded-lg shadow-md';
+  const sendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim() || !canChat) return;
+
+    const newMessage: IUserMessage = {
+      user,
+      message,
+      timestamp: Date.now()
+    };
+
+    console.log(newMessage)
+
+    socket.emit('events', newMessage);
+    setMessage('');
+  };
+
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const handleGreetingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleGreeting();
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-6 flex items-center gap-4">
-        <span className="font-medium">Client:</span>
-        <span className="flex items-center gap-2">
-          My name is {
-            greetings ? 
-            <span className="font-semibold">{user.userName}</span> :
-            <input 
-              className="border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={user.userName}
-              onChange={(e) => setUser((user) => ({...user, userName: e.target.value}))}
-            />
-          }
-          <button 
-            className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
-            onClick={getGreetings}
-          >
-            Hi, server
-          </button>
-        </span>
+    <div className="flex flex-col h-screen bg-gray-100">
+      {/* Chat History */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-800 to-gray-900">
+        <div className="min-h-full flex flex-col justify-end">
+          {history.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex ${msg.user.userId === user.userId ? 'justify-end' : 'justify-start'} mb-4`}
+            >
+              <div
+                className={`max-w-md p-4 rounded-lg ${
+                  msg.user.userId === 'server' 
+                    ? 'bg-yellow-600 text-white'
+                    : msg.user.userId === user.userId
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-sm">
+                    {msg.user.userName}
+                  </span>
+                  <span className="text-xs opacity-75">
+                    {formatTime(msg.timestamp)}
+                  </span>
+                </div>
+                <p className="text-sm">{msg.message}</p>
+              </div>
+            </div>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
       </div>
-      {isConnected && (
-        <form 
-          className="sticky top-0 bg-white p-4 border-b mb-6 flex items-center gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage();
-          }}
-        >
-          <span className="flex items-center gap-2">
-            <span className="font-medium">Client:</span>
+
+      {/* Input Area */}
+      <div className="border-t bg-white p-4 shadow-lg">
+        {!canChat ? (
+          <form onSubmit={handleGreetingSubmit} className="max-w-2xl mx-auto flex gap-4 items-center">
             <input
-              className="border border-gray-300 rounded-md px-3 py-1.5 w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your name"
+              value={user.userName}
+              onChange={(e) => setUser(prev => ({ ...prev, userName: e.target.value }))}
+            />
+            <button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
+              disabled={!user.userName.trim()}
+            >
+              Hi Server
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={sendMessage} className="max-w-2xl mx-auto flex gap-4">
+            <input
+              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Type your message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message..."
             />
-          </span>
-          <button 
-            className="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
-            type="submit"
-          >
-            Send Message
-          </button>
-        </form>
-      )}
-      <div className="space-y-4">
-        {history.map((message, index) => (
-          <div
-            key={index}
-            className={setMessageStyle(message.user.userId)}
-          >
-            <div className="flex gap-3">
-              <span className="text-gray-300 font-medium">
-                {message.user.userName}:
-              </span>
-              <span className="text-white">{message.message}</span>
-            </div>
-          </div>
-        ))}
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium disabled:opacity-50"
+              disabled={!message.trim()}
+            >
+              Send
+            </button>
+          </form>
+        )}
+        
+        <div className="text-center mt-2 text-sm text-gray-500">
+          {isConnected ? 'Connected' : 'Connecting...'}
+        </div>
       </div>
     </div>
   );
