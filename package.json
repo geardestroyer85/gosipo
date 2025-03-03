@@ -10,5 +10,8 @@
     "build:server": "pnpm --filter server build",
     "build:client": "pnpm --filter client build",
     "dev": "concurrently \"pnpm start:server\" \"pnpm start:client\""
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
   }
 }

@@ -19,7 +19,7 @@ function App() {
   const [history, setHistory] = useState<IUserMessage[]>([]);
   const [user, setUser] = useState<IUser>({
     userId: Math.random().toString(36).substring(7),
-    userName: ''
+    userName: '',
   });
   const [canChat, setCanChat] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -37,7 +37,7 @@ function App() {
     socket.on('connect', () => setIsConnected(true));
     socket.on('disconnect', () => setIsConnected(false));
     socket.on('events', (msg: IUserMessage) => {
-      setHistory(prev => [...prev, msg]);
+      setHistory((prev) => [...prev, msg]);
     });
 
     return () => {
@@ -60,15 +60,15 @@ function App() {
     const greetings: IUserMessage = {
       user: {
         userId: 'greetings',
-        userName: 'Notification'
+        userName: 'Notification',
       },
       message: `${user.userName} joined the chat`,
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    };
 
-    newSocket.emit('events', greetings)
+    newSocket.emit('events', greetings);
 
-    setTimeout(() => setCanChat(true), 200)
+    setTimeout(() => setCanChat(true), 200);
   };
 
   const sendMessage = (e: React.FormEvent) => {
@@ -78,7 +78,7 @@ function App() {
     const newMessage: IUserMessage = {
       user,
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     socket.emit('events', newMessage);
@@ -95,7 +95,7 @@ function App() {
   const formatTime = (timestamp: number) => {
     return new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -110,14 +110,15 @@ function App() {
     const logoutMessage: IUserMessage = {
       user: {
         userId: 'greetings',
-        userName: 'Notification'
+        userName: 'Notification',
       },
       message: `${user.userName} left the chat`,
-      timestamp: Date.now()
-    }
-      socket.emit('events', logoutMessage, () => {
-        socket.disconnect();
-      });
+      timestamp: Date.now(),
+    };
+
+    socket.emit('events', logoutMessage, () => {
+      socket.disconnect();
+    });
     setSocket(undefined);
     setHistory([]);
     setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
@@ -141,7 +142,7 @@ function App() {
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter your name"
                 value={user.userName}
-                onChange={(e) => setUser(prev => ({ ...prev, userName: e.target.value }))}
+                onChange={(e) => setUser((prev) => ({ ...prev, userName: e.target.value }))}
               />
             </div>
             <button
@@ -159,7 +160,6 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Chat History */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-800 to-gray-900">
         <div className="min-h-full flex flex-col justify-end">
           {history.map((msg, index) => (
@@ -173,20 +173,16 @@ function App() {
             >
               <div
                 className={`max-w-md p-4 rounded-lg ${
-                  msg.user.userName === 'Notification' 
+                  msg.user.userName === 'Notification'
                     ? 'bg-yellow-500 text-white'
                     : msg.user.userId === user.userId
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-600 text-white'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-600 text-white'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm">
-                    {msg.user.userName}
-                  </span>
-                  <span className="text-xs opacity-75">
-                    {formatTime(msg.timestamp)}
-                  </span>
+                  <span className="font-semibold text-sm">{msg.user.userName}</span>
+                  <span className="text-xs opacity-75">{formatTime(msg.timestamp)}</span>
                 </div>
                 <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
               </div>
@@ -196,33 +192,38 @@ function App() {
         </div>
       </div>
 
-      {/* Input Area */}
       <div className="border-t bg-white p-4 shadow-lg">
         <div className="max-w-6xl mx-auto">
           <form onSubmit={sendMessage} className="flex flex-row gap-4">
-            <div className="font-semibold text-gray-800"><span className={`inline-block w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span> {user.userName}</div>
+            <div className="flex flex-row items-center gap-2 font-semibold text-gray-800 justify-center">
+              <span
+                className={`inline-block w-3 h-3 rounded-full ${
+                  isConnected ? 'bg-green-500' : 'bg-red-500'
+                } animate-pulse`}
+              ></span>
+              <span>{user.userName}</span>
+            </div>
             <div className="relative flex-grow">
               <textarea
-                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-6 py-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-lg shadow-sm transition-all duration-200"
+                className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-sm shadow-sm transition-all duration-200"
                 placeholder="Type your message... (Shift + Enter for new line)"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                rows={3}
-                style={{ minHeight: '80px' }}
+                rows={2}
+                style={{ minHeight: '50px' }}
               />
-            </div>
-            <div className="flex flex-col justify-around">
+            </div>            <div className="flex flex-col justify-around">
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 text-base hover:shadow-lg transform hover:-translate-y-0.5"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full transition-all duration-200 font-medium disabled:opacity-50 text-sm hover:shadow-lg transform hover:-translate-y-0.5"
                 disabled={!message.trim()}
               >
                 Send
               </button>
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-all duration-200 font-medium text-base hover:shadow-lg transform hover:-translate-y-0.5"
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition-all duration-200 font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 Logout
               </button>
@@ -230,7 +231,7 @@ function App() {
           </form>
         </div>
       </div>
-    </div>  
+    </div>
   );
 }
 
