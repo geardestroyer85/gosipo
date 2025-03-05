@@ -7,23 +7,26 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
+import { IUserMessage } from 'shared';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class EventsGateway {
+export class ChatGateway {
   @WebSocketServer() server;
-  private logger = new Logger('EventsGateway');
+  private logger = new Logger('ChatGateway');
 
-  @SubscribeMessage('events')
+  @SubscribeMessage('chat')
   async handleEvent(
-    @MessageBody() payload: string,
-    @ConnectedSocket() client: Socket,
-  ): Promise<string> {
+    @MessageBody()
+    payload: IUserMessage,
+    @ConnectedSocket()
+    client: Socket,
+  ): Promise<IUserMessage> {
     this.logger.log(payload);
-    this.server.emit('events', payload);
+    this.server.emit('chat', payload);
     return payload;
   }
 

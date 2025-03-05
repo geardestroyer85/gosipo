@@ -42,18 +42,18 @@ function App() {
 
     const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
-    const onEvents = (msg: IUserMessage) => {
+    const onChat = (msg: IUserMessage) => {
       setHistory((prev) => [...prev, msg]);
     };
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('events', onEvents);
+    socket.on('chat', onChat);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('events', onEvents);
+      socket.off('chat', onChat);
     };
   }, [socket]);
 
@@ -78,7 +78,7 @@ function App() {
         message: `${user.userName} joined the chat`,
         timestamp: Date.now(),
       };
-      newSocket.emit('events', greetings);
+      newSocket.emit('chat', greetings);
     });
   };
 
@@ -93,7 +93,7 @@ function App() {
     };
 
     try {
-      socket.emit('events', newMessage);
+      socket.emit('chat', newMessage);
       setMessage('');
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -132,7 +132,7 @@ function App() {
     };
 
     try {
-      socket.emit('events', logoutMessage);
+      socket.emit('chat', logoutMessage);
       socket.disconnect();
       setSocket(undefined);
       setHistory([]);
