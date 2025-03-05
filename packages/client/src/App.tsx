@@ -34,30 +34,35 @@ function App() {
   useEffect(() => {
     const currentUser = JSON.parse(sessionStorage.getItem('user') ?? '{}');
     if (currentUser.userId && currentUser.userName) {
-      console.log("User Logged In", currentUser)
       setCanChat(true);
       setUser(currentUser);
-
-      if (!socket) {
-        const newSocket = io();
-        setSocket(newSocket);
-      }
     }
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (canChat && !socket) {
+      const newSocket = io();
+      setSocket(newSocket);
+    }
+  }, [canChat, socket]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('connect', () => setIsConnected(true));
-    socket.on('disconnect', () => setIsConnected(false));
-    socket.on('events', (msg: IUserMessage) => {
+    const onConnect = () => setIsConnected(true);
+    const onDisconnect = () => setIsConnected(false);
+    const onEvents = (msg: IUserMessage) => {
       setHistory((prev) => [...prev, msg]);
-    });
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('events', onEvents);
 
     return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('events');
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('events', onEvents);
     };
   }, [socket]);
 
@@ -65,26 +70,25 @@ function App() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [history]);
 
-  const handleGreeting = () => {
+  const handleLogin = () => {
     if (!user.userName.trim()) return;
 
     const newSocket = io();
     setSocket(newSocket);
+    sessionStorage.setItem('user', JSON.stringify(user));
+    setCanChat(true);
 
-    sessionStorage.setItem('user', JSON.stringify(user))
-
-    const greetings: IUserMessage = {
-      user: {
-        userId: 'greetings',
-        userName: 'Notification',
-      },
-      message: `${user.userName} joined the chat`,
-      timestamp: Date.now(),
-    };
-
-    newSocket.emit('events', greetings);
-
-    setTimeout(() => setCanChat(true), 200);
+    newSocket.on('connect', () => {
+      const greetings: IUserMessage = {
+        user: {
+          userId: 'greetings',
+          userName: 'Notification',
+        },
+        message: `${user.userName} joined the chat`,
+        timestamp: Date.now(),
+      };
+      newSocket.emit('events', greetings);
+    });
   };
 
   const sendMessage = (e: React.FormEvent) => {
@@ -97,8 +101,12 @@ function App() {
       timestamp: Date.now(),
     };
 
-    socket.emit('events', newMessage);
-    setMessage('');
+    try {
+      socket.emit('events', newMessage);
+      setMessage('');
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -115,9 +123,9 @@ function App() {
     });
   };
 
-  const handleGreetingSubmit = (e: React.FormEvent) => {
+  const handleLoginBtnSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleGreeting();
+    handleLogin();
   };
 
   const handleLogout = () => {
@@ -132,15 +140,19 @@ function App() {
       timestamp: Date.now(),
     };
 
-    socket.emit('events', logoutMessage, () => {
+    try {
+      socket.emit('events', logoutMessage);
       socket.disconnect();
-    });
-    setSocket(undefined);
-    setHistory([]);
-    setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
-    sessionStorage.removeItem('user');
-    setCanChat(false);
-    setMessage('');
+      setSocket(undefined);
+      setHistory([]);
+      setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
+      sessionStorage.removeItem('user');
+      setCanChat(false);
+      setMessage('');
+      setIsConnected(false);
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
   };
 
   if (!canChat) {
@@ -148,7 +160,7 @@ function App() {
       <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
           <h2 className="text-2xl font-bold mb-6 text-center">Join the Chat</h2>
-          <form onSubmit={handleGreetingSubmit} className="space-y-6">
+          <form onSubmit={handleLoginBtnSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Your Name
@@ -230,7 +242,8 @@ function App() {
                 rows={2}
                 style={{ minHeight: '50px' }}
               />
-            </div>            <div className="flex flex-col justify-around">
+            </div>
+            <div className="flex flex-col justify-around">
               <button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full transition-all duration-200 font-medium disabled:opacity-50 text-sm hover:shadow-lg transform hover:-translate-y-0.5"
