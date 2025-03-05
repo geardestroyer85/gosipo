@@ -1,16 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { IUser, IUserMessage } from 'shared';
 
-interface IUser {
-  userId: string;
-  userName: string;
-}
-
-interface IUserMessage {
-  user: IUser;
-  message: string;
-  timestamp: number;
-}
 
 function App() {
   const [socket, setSocket] = useState<Socket>();

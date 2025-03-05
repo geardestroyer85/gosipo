@@ -1,0 +1,8 @@
+{
+  "name": "shared",
+  "version": "0.1.0",
+  "types": "index.ts",
+  "dependencies": {
+    "shared": "file:"
+  }
+}
