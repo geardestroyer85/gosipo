@@ -32,6 +32,20 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const currentUser = JSON.parse(sessionStorage.getItem('user') ?? '{}');
+    if (currentUser.userId && currentUser.userName) {
+      console.log("User Logged In", currentUser)
+      setCanChat(true);
+      setUser(currentUser);
+
+      if (!socket) {
+        const newSocket = io();
+        setSocket(newSocket);
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     if (!socket) return;
 
     socket.on('connect', () => setIsConnected(true));
@@ -56,6 +70,8 @@ function App() {
 
     const newSocket = io();
     setSocket(newSocket);
+
+    sessionStorage.setItem('user', JSON.stringify(user))
 
     const greetings: IUserMessage = {
       user: {
@@ -122,6 +138,7 @@ function App() {
     setSocket(undefined);
     setHistory([]);
     setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
+    sessionStorage.removeItem('user');
     setCanChat(false);
     setMessage('');
   };
