@@ -54,6 +54,10 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    socket.connect()
+  }, [canChat])
+
   const handleLogin = () => {
     if (!user.userName.trim()) return;
 
