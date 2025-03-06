@@ -126,7 +126,7 @@ function App() {
     <div className="flex flex-col h-screen bg-gray-100">
       <Header isConnected={isConnected} user={user} handleLogout={handleLogout} />
       <ChatWindow history={history} user={user} windowWidth={windowWidth} />
-      <div className="border-t bg-white p-4 shadow-lg">
+      <div className="border-t bg-white px-2 py-2 shadow-lg">
         <div className="flex gap-4 justify-between max-w-6xl mx-auto">
           <MessageInput
             message={message}
@@ -135,7 +135,6 @@ function App() {
             handleKeyDown={handleKeyDown}
             isConnected={isConnected}
             user={user}
-            handleLogout={handleLogout}
           />
         </div>
       </div>
