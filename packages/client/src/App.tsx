@@ -4,12 +4,10 @@ import { IUser, IUserMessage, IServer2Client, IClient2Server } from 'shared';
 import LoginForm from './LoginForm';
 import ChatWindow from './ChatWindow';
 import MessageInput from './MessageInput';
-// import UserStatus from './UserStatus';
 import Header from './Header';
 
-const socket: Socket<IServer2Client, IClient2Server> = io()
-
 function App() {
+  const [socket, setSocket] = useState<Socket<IServer2Client, IClient2Server> | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState<IUserMessage[]>([]);
@@ -35,43 +33,42 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!canChat) return;
 
-    const onConnect = () => setIsConnected(true);
-    const onDisconnect = () => setIsConnected(false);
-    const onChat = (msg: IUserMessage) => {
-      setHistory((prev) => [...prev, msg]);
-    };
+    const newSocket = io();
+    setSocket(newSocket);
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('chat', onChat);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('chat', onChat);
-    };
-  }, []);
-
-  useEffect(() => {
-    socket.connect()
-  }, [canChat])
-
-  const handleLogin = () => {
-    if (!user.userName.trim()) return;
-
-    sessionStorage.setItem('user', JSON.stringify(user));
-    setCanChat(true);
-
-    socket.on('connect', () => {
+    const onConnect = () => {
+      setIsConnected(true);
       const greetings: IUserMessage = {
         user: { userId: 'greetings', userName: 'Notification' },
         message: `${user.userName} joined the chat`,
         timestamp: Date.now(),
       };
-      socket.emit('chat', greetings);
-    });
+      newSocket.emit('chat', greetings);
+    };
+
+    const onDisconnect = () => setIsConnected(false);
+    const onChat = (msg: IUserMessage) => {
+      setHistory((prev) => [...prev, msg]);
+    };
+
+    newSocket.on('connect', onConnect);
+    newSocket.on('disconnect', onDisconnect);
+    newSocket.on('chat', onChat);
+
+    return () => {
+      newSocket.off('connect', onConnect);
+      newSocket.off('disconnect', onDisconnect);
+      newSocket.off('chat', onChat);
+      newSocket.disconnect();
+    };
+  }, [canChat, user.userName]);
+
+  const handleLogin = () => {
+    if (!user.userName.trim()) return;
+    sessionStorage.setItem('user', JSON.stringify(user));
+    setCanChat(true);
   };
 
   const sendMessage = (e: React.FormEvent) => {
@@ -111,6 +108,7 @@ function App() {
     try {
       socket.emit('chat', logoutMessage);
       socket.disconnect();
+      setSocket(null);
       setHistory([]);
       setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
       sessionStorage.removeItem('user');
