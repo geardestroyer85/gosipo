@@ -6,8 +6,9 @@ import ChatWindow from './ChatWindow';
 import MessageInput from './MessageInput';
 import UserStatus from './UserStatus';
 
+const socket: Socket<IServer2Client, IClient2Server> = io()
+
 function App() {
-  const [socket, setSocket] = useState<Socket>();
   const [isConnected, setIsConnected] = useState(false);
   const [message, setMessage] = useState('');
   const [history, setHistory] = useState<IUserMessage[]>([]);
@@ -33,13 +34,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (canChat && !socket) {
-      const newSocket: Socket<IServer2Client, IClient2Server> = io()
-      setSocket(newSocket);
-    }
-  }, [canChat, socket]);
-
-  useEffect(() => {
     if (!socket) return;
 
     const onConnect = () => setIsConnected(true);
@@ -57,23 +51,21 @@ function App() {
       socket.off('disconnect', onDisconnect);
       socket.off('chat', onChat);
     };
-  }, [socket]);
+  }, []);
 
   const handleLogin = () => {
     if (!user.userName.trim()) return;
 
-    const newSocket: Socket<IServer2Client, IClient2Server> = io()
-    setSocket(newSocket);
     sessionStorage.setItem('user', JSON.stringify(user));
     setCanChat(true);
 
-    newSocket.on('connect', () => {
+    socket.on('connect', () => {
       const greetings: IUserMessage = {
         user: { userId: 'greetings', userName: 'Notification' },
         message: `${user.userName} joined the chat`,
         timestamp: Date.now(),
       };
-      newSocket.emit('chat', greetings);
+      socket.emit('chat', greetings);
     });
   };
 
@@ -114,7 +106,6 @@ function App() {
     try {
       socket.emit('chat', logoutMessage);
       socket.disconnect();
-      setSocket(undefined);
       setHistory([]);
       setUser({ userId: Math.random().toString(36).substring(7), userName: '' });
       sessionStorage.removeItem('user');
