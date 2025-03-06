@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { IUser, IUserMessage } from 'shared';
+import { IUser, IUserMessage, IServer2Client, IClient2Server } from 'shared';
 import LoginForm from './LoginForm';
 import ChatWindow from './ChatWindow';
 import MessageInput from './MessageInput';
@@ -34,7 +34,7 @@ function App() {
 
   useEffect(() => {
     if (canChat && !socket) {
-      const newSocket = io();
+      const newSocket: Socket<IServer2Client, IClient2Server> = io()
       setSocket(newSocket);
     }
   }, [canChat, socket]);
@@ -62,7 +62,7 @@ function App() {
   const handleLogin = () => {
     if (!user.userName.trim()) return;
 
-    const newSocket = io();
+    const newSocket: Socket<IServer2Client, IClient2Server> = io()
     setSocket(newSocket);
     sessionStorage.setItem('user', JSON.stringify(user));
     setCanChat(true);

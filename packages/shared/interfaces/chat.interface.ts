@@ -8,3 +8,11 @@ export interface IUserMessage {
   message: string;
   timestamp: number;
 }
+
+export interface IServer2Client {
+  chat: (e: IUserMessage) => void
+}
+
+export interface IClient2Server {
+  chat: (e: IUserMessage) => void
+}
