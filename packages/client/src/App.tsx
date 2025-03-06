@@ -4,7 +4,8 @@ import { IUser, IUserMessage, IServer2Client, IClient2Server } from 'shared';
 import LoginForm from './LoginForm';
 import ChatWindow from './ChatWindow';
 import MessageInput from './MessageInput';
-import UserStatus from './UserStatus';
+// import UserStatus from './UserStatus';
+import Header from './Header';
 
 const socket: Socket<IServer2Client, IClient2Server> = io()
 
@@ -123,10 +124,10 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
+      <Header isConnected={isConnected} user={user} handleLogout={handleLogout} />
       <ChatWindow history={history} user={user} windowWidth={windowWidth} />
       <div className="border-t bg-white p-4 shadow-lg">
         <div className="flex gap-4 justify-between max-w-6xl mx-auto">
-          <UserStatus isConnected={isConnected} user={user} />
           <MessageInput
             message={message}
             setMessage={setMessage}

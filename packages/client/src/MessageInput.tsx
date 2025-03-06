@@ -47,8 +47,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
       </div>
       <div className="flex flex-col justify-around gap-1">
         <button
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition-all duration-200 font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full transition-all duration-200 font-medium text-sm hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           >
             <path
               fillRule="evenodd"
-              d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
+              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
               clipRule="evenodd"
             />
           </svg>
