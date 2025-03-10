@@ -30,7 +30,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       <div className="relative flex-grow flex items-center justify-center">
         <textarea
           ref={textareaRef}
-          className="w-full bg-gray-50 rounded-lg px-3 py-1 outline-none text-sm transition-all duration-200 whitespace-pre-wrap overflow-y-auto resize-none"
+          className="w-full bg-white rounded-lg px-3 py-1 outline-none text-sm transition-all duration-200 whitespace-pre-wrap overflow-y-auto resize-none"
           placeholder="Write a message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
