@@ -3,8 +3,8 @@ import { io, Socket } from 'socket.io-client';
 import { IUser, IUserMessage, IServer2Client, IClient2Server } from 'shared';
 import LoginForm from './features/auth/components/LoginForm'; 
 import ChatWindow from './features/chat/components/ChatWindow'; 
-import MessageInput from './components/ui/MessageInput'; 
-import Header from './components/layout/Header';
+import MessageInput from './components/MessageInput'; 
+import Header from './features/chat/components/ChatHeader';
 
 function App() {
   const [socket, setSocket] = useState<Socket<IServer2Client, IClient2Server> | null>(null);
