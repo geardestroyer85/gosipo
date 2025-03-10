@@ -1,6 +1,6 @@
   import React from 'react';
   import { IUser } from 'shared';
-  import UserStatus from './UserStatus';
+  import UserStatus from '../ui/UserStatus'; 
 
   interface HeaderProps {
     isConnected: boolean;

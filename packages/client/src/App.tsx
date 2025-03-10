@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { IUser, IUserMessage, IServer2Client, IClient2Server } from 'shared';
-import LoginForm from './LoginForm';
-import ChatWindow from './ChatWindow';
-import MessageInput from './MessageInput';
-import Header from './Header';
+import LoginForm from './features/auth/components/LoginForm'; 
+import ChatWindow from './features/chat/components/ChatWindow'; 
+import MessageInput from './components/ui/MessageInput'; 
+import Header from './components/layout/Header';
 
 function App() {
   const [socket, setSocket] = useState<Socket<IServer2Client, IClient2Server> | null>(null);
