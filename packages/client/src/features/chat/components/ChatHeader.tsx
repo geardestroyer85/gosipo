@@ -10,7 +10,7 @@
 
   const Header: React.FC<HeaderProps> = ({ isConnected, user, handleLogout }) => {
     return (
-      <header className="bg-white shadow-sm p-4 flex items-center justify-between">
+      <header className="bg-white shadow-sm p-2 flex items-center justify-between">
         <UserStatus isConnected={isConnected} user={user} />
         <button
           onClick={handleLogout}

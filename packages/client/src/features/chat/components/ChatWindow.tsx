@@ -22,19 +22,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ history, user, windowWidth }) =
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-gray-800 to-gray-900">
+    <div className="flex-1 overflow-y-auto p-2 space-y-4 bg-gradient-to-b from-gray-800 to-gray-900">
       <div className="min-h-full flex flex-col justify-end">
         {history.map((msg, index) => (
           <div
             key={index}
-            className={`flex mb-4 ${
+            className={`flex mb-2 ${
               windowWidth <= 768 && msg.user.userId === user.userId
                 ? 'justify-end'
                 : 'justify-start'
             }`}
           >
             <div
-              className={`max-w-md p-4 rounded-lg ${
+              className={`max-w-md px-3 py-2 rounded-lg ${
                 msg.user.userName === 'Notification'
                   ? 'bg-yellow-500 text-white'
                   : msg.user.userId === user.userId
